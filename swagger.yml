@@ -1,0 +1,249 @@
+openapi: 3.0.0
+info:
+  description: APIs para registro de caminhoneiros
+  version: 1.0.0
+  title: Truck Driver APIs
+
+servers:
+  - url: /api
+    description: server
+
+paths:
+  /drivers:
+    get:
+      operationId: drivers.list
+      tags:
+        - Drivers
+      summary: ""
+      description: Retorna lista de motoristas
+      responses:
+        200:
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Driver"
+    post:
+      operationId: drivers.add
+      tags:
+        - Drivers
+      summary: ""
+      description: Registra novo motorista
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AddDriver"
+      responses:
+        200:
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Driver"
+  /drivers/{id}:
+    get:
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      operationId: drivers.read
+      tags:
+        - Drivers
+      summary: ""
+      description: Retorna motorista
+      responses:
+        200:
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Driver"
+    put:
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      operationId: drivers.edit
+      tags:
+        - Drivers
+      summary: ""
+      description: Edita dados de motorista
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AddDriver"
+      responses:
+        200:
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Driver"
+    delete:
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      operationId: drivers.delete
+      tags:
+        - Drivers
+      summary: ""
+      description: Deleta dados de motorista
+      responses:
+        200:
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    type: integer
+  /drivers/not-loaded:
+    get:
+      operationId: drivers.listNotLoaded
+      tags:
+        - Drivers
+      summary: ""
+      description: Retorna lista de motoristas sem carga
+      responses:
+        200:
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Driver"
+  /drivers/with-truck:
+    get:
+      operationId: drivers.countWithTruck
+      tags:
+        - Count
+      summary: ""
+      description: Conta motoristas com caminhão
+      responses:
+        200:
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                properties:
+                  count:
+                    type: integer
+  /drivers/loaded-by-period:
+    get:
+      operationId: drivers.countLoadedByPeriod
+      tags:
+        - Count
+      summary: ""
+      description: Conta motoristas com carga no dia, semana e mês
+      responses:
+        200:
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                properties:
+                  day:
+                    type: integer
+                  week:
+                    type: integer
+                  month:
+                    type: integer
+  /drivers/origin-destination-by-truck-type:
+    get:
+      operationId: drivers.countOriginDestinationByTruckType
+      tags:
+        - Count
+      summary: ""
+      description: Conta pares origem-destino por tipo de caminhão
+      responses:
+        200:
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                properties:
+                  origin:
+                    type: string
+                  destination:
+                    type: string
+                  truck_name:
+                    type: string
+                  count:
+                    type: integer
+  /drivers/geolocate/{id}:
+    get:
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      operationId: drivers.geolocate
+      tags:
+        - Geolocate
+      summary: ""
+      description: Retorna motorista
+      responses:
+        200:
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                properties:
+                  origin_latitude:
+                    type: number
+                  origin_longitude:
+                    type: number
+                  destination_latitude:
+                    type: number
+                  destination_longitude:
+                    type: number
+components:
+  parameters:
+    Id:
+      name: id
+      in: path
+      description: Identificador único do motorista
+      required: true
+      schema:
+        type: integer
+        format: int64
+  schemas:
+    AddDriver:
+      properties:
+        name:
+          type: string
+        age:
+          type: integer
+        gender:
+          type: string
+        license_type:
+          type: string
+        has_truck:
+          type: boolean
+        truck_type:
+          type: integer
+        loaded:
+          type: boolean
+        origin:
+          type: string
+        destination:
+          type: string
+        stop_date:
+          type: string
+      example:
+        name: João
+        age: 40
+        gender: M
+        license_type: C
+        has_truck: true
+        truck_type: 1
+        loaded: false
+        origin: Santos
+        destination: São Paulo
+        stop_date: '01/09/2019 02:13:24'
+    Driver:
+      allOf:
+        - $ref: "#/components/schemas/AddDriver"
+        - type: object
+          properties:
+            id:
+              type: integer
