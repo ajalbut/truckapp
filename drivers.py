@@ -1,9 +1,9 @@
-from geopy.geocoders import Nominatim
 from models import *
 from truck_types import *
+from connexion import request
+from geopy.geocoders import Nominatim
 from playhouse.shortcuts import model_to_dict
 import datetime
-from connexion import request
 
 class Driver(BaseModel):
     id = IntegerField(primary_key=True)
@@ -32,12 +32,12 @@ def countWithTruck():
 
 def countLoadedByPeriod():
     today = datetime.date.today()
-    weekStart = today - datetime.timedelta(days=today.weekday())
-    monthStart = today - datetime.timedelta(days=(today.day - 1))
+    oneWeekAgo = today - datetime.timedelta(days=7)
+    oneMonthAgo = today - datetime.timedelta(days=30)
     return {
         'day': Driver.select().where(Driver.loaded == True).where(Driver.stop_date >= today).count(),
-        'week': Driver.select().where(Driver.loaded == True).where(Driver.stop_date >= weekStart).count(),
-        'month': Driver.select().where(Driver.loaded == True).where(Driver.stop_date >= monthStart).count(),
+        'week': Driver.select().where(Driver.loaded == True).where(Driver.stop_date >= oneWeekAgo).count(),
+        'month': Driver.select().where(Driver.loaded == True).where(Driver.stop_date >= oneMonthAgo).count(),
     }
 
 def countOriginDestinationByTruckType():
@@ -71,7 +71,7 @@ def geolocate(id):
         }
 
     except Exception as e:
-        return {'error': str(e)}
+        return {'error': str(e)}, 400
 
 def add():
     try:
@@ -96,7 +96,7 @@ def add():
         return model_to_dict(driver)
 
     except Exception as e:
-        return {'error': str(e)}
+        return {'error': str(e)}, 400
 
 def edit(id):
     try:
@@ -125,7 +125,7 @@ def edit(id):
         return model_to_dict(driver)
 
     except Exception as e:
-        return {'error': str(e)}
+        return {'error': str(e)}, 400
 
 def delete(id):
     try:
@@ -136,4 +136,4 @@ def delete(id):
         return {'success': driver.delete_instance()}
 
     except Exception as e:
-        return {'error': str(e)}
+        return {'error': str(e)}, 400
